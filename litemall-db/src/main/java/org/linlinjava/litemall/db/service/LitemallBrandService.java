@@ -10,7 +10,9 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LitemallBrandService {
@@ -31,6 +33,14 @@ public class LitemallBrandService {
     //原品牌查询方法，无排序
     public List<LitemallBrand> query(Integer page, Integer limit) {
         return query(page, limit, null, null);
+    }
+    //按照距离，推荐，评分三个分类分别查询
+    public Map<String,List<LitemallBrand>> Varyquery(Integer page, Integer limit) {
+        Map<String,List<LitemallBrand>> map = new HashMap<>(3);
+        map.put("recommend",query(page, limit, null, "sort_order"));
+        map.put("distance",query(page, limit, null, "name"));
+        map.put("rate",query(page, limit, null, null));
+        return map;
     }
 
     public LitemallBrand findById(Integer id) {
