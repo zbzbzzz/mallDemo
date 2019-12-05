@@ -69,6 +69,8 @@
         </table>
         <table tableName="litemall_brand">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+            <columnOverride column="tags" javaType="java.lang.String[]"
+                            typeHandler="org.linlinjava.litemall.db.mybatis.JsonStringArrayTypeHandler"/>
         </table>
         <table tableName="litemall_cart">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>

@@ -1,7 +1,10 @@
 package org.linlinjava.litemall.db.service;
 
 import com.github.pagehelper.PageHelper;
+import org.linlinjava.litemall.db.dao.LitemallCategoryMapper;
 import org.linlinjava.litemall.db.dao.LitemallGoodsMapper;
+import org.linlinjava.litemall.db.domain.LitemallCategory;
+import org.linlinjava.litemall.db.domain.LitemallCategoryExample;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.linlinjava.litemall.db.domain.LitemallGoods.Column;
 import org.linlinjava.litemall.db.domain.LitemallGoodsExample;
@@ -13,12 +16,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LitemallGoodsService {
-    Column[] columns = new Column[]{Column.id, Column.name, Column.brief, Column.picUrl, Column.isHot, Column.isNew, Column.counterPrice, Column.retailPrice};
+    Column[] columns = new Column[]{Column.id, Column.name, Column.brief, Column.picUrl, Column.isHot,
+            Column.isNew, Column.counterPrice, Column.retailPrice,Column.categoryId};
     @Resource
     private LitemallGoodsMapper goodsMapper;
+
+    @Resource
+    private LitemallCategoryMapper categoryMapper;
 
     /**
      * 获取热卖商品
@@ -121,10 +130,35 @@ public class LitemallGoodsService {
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
         }
-
         PageHelper.startPage(offset, limit);
-
         return goodsMapper.selectByExampleSelective(example, columns);
+    }
+    /**
+     * 功能描述:
+     * 查询商家对应的商品
+     * 利用stream对对应商家的商品进行分类
+     * <br>
+     * 〈〉
+     * @Param: brandId 商家id
+     * @Return: Map<String,LitemallGoods>
+     * @Author: zbzbzzz
+     * @Date: 2019/12/5 20:16
+     */
+    public Map<String,List<LitemallGoods>> queryByCategroy(Integer brandId){
+        //查询所有的种类
+        LitemallCategoryExample categoryExample = new LitemallCategoryExample();
+        List<LitemallCategory> categoryList=categoryMapper.selectByExample(categoryExample);
+        //用stream把所有种类变成map
+        Map<Integer,String> categoryMap = categoryList.stream()
+                .collect(Collectors.toMap(LitemallCategory::getId,LitemallCategory::getName));
+        //查询商家对应的商品
+        LitemallGoodsExample example = new LitemallGoodsExample();
+        LitemallGoodsExample.Criteria criteria1 = example.createCriteria().andBrandIdEqualTo(brandId);
+        //利用stream把商品进行分类
+        List<LitemallGoods> goodsList = goodsMapper.selectByExampleSelective(example, columns);
+        Map<String, List<LitemallGoods>> goodsMap=goodsList.stream()
+                .collect(Collectors.groupingBy((goods)->categoryMap.get(goods.getCategoryId())));
+        return goodsMap;
     }
 
     public List<LitemallGoods> querySelective(String goodsSn, String name, Integer page, Integer size, String sort, String order) {

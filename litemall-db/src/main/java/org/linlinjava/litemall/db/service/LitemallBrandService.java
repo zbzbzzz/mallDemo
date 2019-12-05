@@ -18,7 +18,8 @@ import java.util.Map;
 public class LitemallBrandService {
     @Resource
     private LitemallBrandMapper brandMapper;
-    private Column[] columns = new Column[]{Column.id, Column.name, Column.desc, Column.picUrl, Column.floorPrice};
+    private Column[] columns = new Column[]{Column.id, Column.name, Column.desc, Column.picUrl, Column.floorPrice,
+            Column.sale,Column.sendPrice,Column.star,Column.startPrice,Column.tags};
 
     public List<LitemallBrand> query(Integer page, Integer limit, String sort, String order) {
         LitemallBrandExample example = new LitemallBrandExample();
@@ -34,12 +35,12 @@ public class LitemallBrandService {
     public List<LitemallBrand> query(Integer page, Integer limit) {
         return query(page, limit, null, null);
     }
-    //按照距离，推荐，评分三个分类分别查询
+    //按照距离，推荐，评分三个分类分别查询(由于数据库未做出改变，排序的逻辑只能这样模拟下)
     public Map<String,List<LitemallBrand>> Varyquery(Integer page, Integer limit) {
         Map<String,List<LitemallBrand>> map = new HashMap<>(3);
-        map.put("recommend",query(page, limit, null, "sort_order"));
-        map.put("distance",query(page, limit, null, "name"));
-        map.put("rate",query(page, limit, null, null));
+        map.put("recommend",query(page, limit, "start_price", "asc"));
+        map.put("sale",query(page, limit, "sale", "desc"));
+        map.put("rate",query(page, limit, "star", "desc"));
         return map;
     }
 

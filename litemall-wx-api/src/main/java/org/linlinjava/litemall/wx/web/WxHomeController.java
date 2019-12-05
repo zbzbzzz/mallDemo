@@ -81,7 +81,8 @@ public class WxHomeController {
         if (HomeCacheManager.hasData(HomeCacheManager.INDEX)) {
             return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
         }
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        //添加分类参数后线程池从10改为11
+        ExecutorService executorService = Executors.newFixedThreadPool(11);
 
         Callable<List> bannerListCallable = () -> adService.queryIndex();
 
@@ -108,6 +109,9 @@ public class WxHomeController {
 
         Callable<List> floorGoodsListCallable = this::getCategoryList;
 
+        //添加分类参数
+        Callable<Map> VarybrandListCallable = () -> brandService.Varyquery(0, SystemConfig.getBrandLimit());
+
         FutureTask<List> bannerTask = new FutureTask<>(bannerListCallable);
         FutureTask<List> channelTask = new FutureTask<>(channelListCallable);
         FutureTask<List> couponListTask = new FutureTask<>(couponListCallable);
@@ -117,6 +121,8 @@ public class WxHomeController {
         FutureTask<List> topicListTask = new FutureTask<>(topicListCallable);
         FutureTask<List> grouponListTask = new FutureTask<>(grouponListCallable);
         FutureTask<List> floorGoodsListTask = new FutureTask<>(floorGoodsListCallable);
+        //添加分类参数
+        FutureTask<Map> VarybrandListTask = new FutureTask<>(VarybrandListCallable);
 
         executorService.submit(bannerTask);
         executorService.submit(channelTask);
@@ -127,9 +133,13 @@ public class WxHomeController {
         executorService.submit(topicListTask);
         executorService.submit(grouponListTask);
         executorService.submit(floorGoodsListTask);
+        //添加分类参数
+        executorService.submit(VarybrandListTask);
+
 
         Map<String, Object> entity = new HashMap<>();
         try {
+
             entity.put("banner", bannerTask.get());
             entity.put("channel", channelTask.get());
             entity.put("couponList", couponListTask.get());
@@ -139,6 +149,8 @@ public class WxHomeController {
             entity.put("topicList", topicListTask.get());
             entity.put("grouponList", grouponListTask.get());
             entity.put("floorGoodsList", floorGoodsListTask.get());
+            //添加分类参数
+            entity.put("VarybrandList",VarybrandListTask.get());
             //缓存数据
             HomeCacheManager.loadData(HomeCacheManager.INDEX, entity);
         }
