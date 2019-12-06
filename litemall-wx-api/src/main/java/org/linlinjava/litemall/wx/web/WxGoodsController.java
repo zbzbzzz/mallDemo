@@ -279,8 +279,7 @@ public class WxGoodsController {
 		}
 
 		PageInfo<LitemallGoods> pagedList = PageInfo.of(goodsList);
-		//商品分类列表
-		Map<String,List<LitemallGoods>> goodMap= goodsService.queryByCategroy(brandId);
+
 
 		Map<String, Object> entity = new HashMap<>();
 		entity.put("list", goodsList);
@@ -289,7 +288,11 @@ public class WxGoodsController {
 		entity.put("limit", pagedList.getPageSize());
 		entity.put("pages", pagedList.getPages());
 		entity.put("filterCategoryList", categoryList);
-		entity.put("categroyList",goodMap);
+		//商品分类列表
+		if(!org.springframework.util.StringUtils.isEmpty(brandId)) {
+			Map<String, List<LitemallGoods>> goodMap = goodsService.queryByCategroy(brandId);
+			entity.put("categroyList", goodMap);
+		}
 
 		// 因为这里需要返回额外的filterCategoryList参数，因此不能方便使用ResponseUtil.okList
 		return ResponseUtil.ok(entity);
