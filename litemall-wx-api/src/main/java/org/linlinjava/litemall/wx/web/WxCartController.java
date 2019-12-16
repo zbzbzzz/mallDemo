@@ -364,12 +364,19 @@ public class WxCartController {
         }
 
         int goodsCount = 0;
+        BigDecimal allprice = new BigDecimal(0);
         List<LitemallCart> cartList = cartService.queryByUid(userId);
         for (LitemallCart cart : cartList) {
             goodsCount += cart.getNumber();
+            //计算商品总价
+            BigDecimal price = cart.getPrice().multiply(new BigDecimal(cart.getNumber()));
+            allprice = allprice.add(price);
         }
 
-        return ResponseUtil.ok(goodsCount);
+        //在不改变原数据结构的情况下增加商品总价数据
+        Map<String,Object> res = (Map<String,Object>)ResponseUtil.ok(goodsCount);
+        res.put("allprice",allprice.doubleValue());
+        return res;
     }
 
     /**
