@@ -359,18 +359,18 @@ public class WxCartController {
      */
     @GetMapping("goodscount")
     public Object goodscount(@LoginUser Integer userId) {
-        if (userId == null) {
-            return ResponseUtil.ok(0);
-        }
 
         int goodsCount = 0;
         BigDecimal allprice = new BigDecimal(0);
-        List<LitemallCart> cartList = cartService.queryByUid(userId);
-        for (LitemallCart cart : cartList) {
-            goodsCount += cart.getNumber();
-            //计算商品总价
-            BigDecimal price = cart.getPrice().multiply(new BigDecimal(cart.getNumber()));
-            allprice = allprice.add(price);
+        //对登录状态判断，如果为登录数据为0
+        if(userId!=null) {
+            List<LitemallCart> cartList = cartService.queryByUid(userId);
+            for (LitemallCart cart : cartList) {
+                goodsCount += cart.getNumber();
+                //计算商品总价
+                BigDecimal price = cart.getPrice().multiply(new BigDecimal(cart.getNumber()));
+                allprice = allprice.add(price);
+            }
         }
 
         //在不改变原数据结构的情况下增加商品总价数据
