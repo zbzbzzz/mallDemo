@@ -259,13 +259,13 @@ public class                                                                    
         }
 
         if (cartId == null || addressId == null || couponId == null) {
-            return ResponseUtil.badArgument();
+            return ResponseUtil.badArgument("请填写好相关信息");
         }
 
         // 收货地址
         LitemallAddress checkedAddress = addressService.query(userId, addressId);
         if (checkedAddress == null) {
-            return ResponseUtil.badArgument();
+            return ResponseUtil.badArgument("地址信息错误");
         }
 
         // 团购优惠

@@ -112,6 +112,10 @@ public class ResponseUtil {
     public static Object badArgument() {
         return fail(401, "参数不对");
     }
+    // 添加一个自定义消息方法
+    public static Object badArgument(String msg) {
+        return fail(401, msg);
+    }
 
     public static Object badArgumentValue() {
         return fail(402, "参数值不对");
